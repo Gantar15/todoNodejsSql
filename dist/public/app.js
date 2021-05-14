@@ -8,6 +8,21 @@ new Vue({
         todos: []
       }
     },
+    created(){
+      fetch('/api/todo', {
+        method: 'get'
+      })
+      .then(res => res.json())
+      .then(todos => {
+        if(todos.message){
+          console.warn(todo.message);
+          return;
+        }
+
+        this.todos = this.todos.concat(todos);
+      })
+      .catch(err => console.log(err));
+    },
     methods: {
       addTodo() {
         const title = this.todoTitle.trim()
@@ -23,13 +38,50 @@ new Vue({
         })
         .then(res => res.json())
         .then(todo => {
+          if(todo.message){
+            console.warn(todo.message);
+            return;
+          }
+
           this.todos.push(todo.todo);
           this.todoTitle = '';
         })
         .catch(err => console.log(err));
       },
       removeTodo(id) {
-        this.todos = this.todos.filter(t => t.id !== id)
+        fetch(`/api/todo/${id}`, {
+          method: 'delete'
+        })
+        .then(res => res.json())
+        .then(todo => {
+            if(todo.message){
+              console.warn(todo.message);
+              return;
+            }
+            
+            this.todos = this.todos.filter(t => t.id !== id);
+        })
+        .catch(err => console.log(err));
+      },
+      completeTodo(id){
+        fetch(`/api/todo/${id}`, {
+          method: "put",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({done: true})
+        })
+        .then(res => res.json())
+        .then(todo => {
+            if(todo.message){
+              console.warn(todo.message);
+              return;
+            }
+
+            const indx = this.todos.findIndex(listTodo => listTodo.id === todo.id);
+            this.todos[indx].updatedAt = todo.done;
+        })
+        .catch(err => console.log(err));
       }
     },
     filters: {

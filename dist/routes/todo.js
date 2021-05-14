@@ -13,9 +13,16 @@ const { Router } = require('express');
 const router = Router();
 const Todo = require('../models/todo');
 //Получаем задачи
-router.get('/', (req, res) => {
-    res.json({ a: 3 });
-});
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const todos = yield Todo.findAll();
+        res.status(200).json(todos);
+    }
+    catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Server error" });
+    }
+}));
 //Создаем задачу
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -31,21 +38,43 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 }));
 //Изменение задачи
-router.put('/:id', (req, res) => {
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const todo = yield Todo.findByPk(+req.params.id);
+        if (todo) {
+            todo.done = req.body.done;
+            yield todo.save();
+            res.status(200).json(todo);
+        }
+        else {
+            res.status(400).json({ message: "Bad request" });
+        }
     }
     catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server error" });
     }
-});
+}));
 //Удаление задачи
-router.delete('/:id', (req, res) => {
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const todos = yield Todo.findAll({
+            where: {
+                id: +req.params.id
+            }
+        });
+        if (todos) {
+            const todo = todos[0];
+            yield todo.destroy();
+            res.status(200).json({});
+        }
+        else {
+            res.status(400).json({ message: "Bad request" });
+        }
     }
     catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server error" });
     }
-});
+}));
 module.exports = router;

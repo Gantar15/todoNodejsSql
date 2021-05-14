@@ -19,7 +19,7 @@
 <body>
 <div id="app" v-cloak>
   <v-app :dark="isDark">
-    <v-toolbar color="blue darken-4" dark style="padding-top: 6px;padding-bottom: 6px;">
+    <v-toolbar color="blue darken-4" dark style="padding-top: 4px;padding-bottom: 4px;">
       <v-toolbar-side-icon></v-toolbar-side-icon>
       <v-toolbar-title class="headline">Список дел</v-toolbar-title>
 
@@ -73,6 +73,7 @@
                     <v-checkbox
                       v-if="!todo.done"
                       v-model="todo.done"
+                      @change="completeTodo(todo.id)"
                       :dark="isDark"
                     ></v-checkbox>
                   </v-list-tile-action>
